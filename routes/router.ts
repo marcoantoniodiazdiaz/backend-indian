@@ -73,6 +73,13 @@ app.get('/usuarios', (req: Request, res: Response) => {
   });
 });
 
+app.get('/status', (req: Request, res: Response) => {
+  res.json({
+    ok: true,
+    status: 'RUNNING'
+  });
+});
+
 app.get('/usuarios/inf', (req: Request, res: Response) => {
   const server = Server.instance;
 

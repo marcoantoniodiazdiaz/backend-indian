@@ -1,24 +1,19 @@
 import { Request, Response } from 'express';
-import Clientes, { ICliente } from '../classes/interfaces/cliente.interface';
+import UserSchema, { IUser } from '../classes/interfaces/user.interface';
 import { MongoError } from 'mongodb';
 import {
   verificaToken,
   verificaAdmin_Role
 } from '../middlewares/authentication';
-import * as axios from 'axios';
 import * as _ from 'underscore';
 import bcrypt from 'bcrypt';
 
 import { app } from './router';
-import { GOOGLE_NOTIFICATIONS } from '../global/environment';
-import socketIO from 'socket.io';
-import { ClientesSocketController } from '../sockets/models/clientes-socket';
-import { Socket } from 'socket.io';
 
-app.get('/clientes', [verificaToken], (req: Request, res: Response) => {
-  Clientes.find({})
+app.get('/users', /*[verificaToken],*/(req: Request, res: Response) => {
+  UserSchema.find({})
     .sort({
-      nombre: 1
+      firstName: 1
     })
     .exec((err, data) => {
       if (err) {
@@ -35,10 +30,10 @@ app.get('/clientes', [verificaToken], (req: Request, res: Response) => {
     });
 });
 
-app.get('/clientes/:id', [verificaToken], (req: Request, res: Response) => {
+app.get('/users/:id', [verificaToken], (req: Request, res: Response) => {
   let id = req.params.id;
 
-  Clientes.findById(id).exec((err, data) => {
+  UserSchema.findById(id).exec((err, data) => {
     if (err) {
       return res.status(400).json({
         ok: false,
@@ -53,19 +48,19 @@ app.get('/clientes/:id', [verificaToken], (req: Request, res: Response) => {
   });
 });
 
-app.get('/clientes/nombre/:nombre',
-  [verificaToken],
+app.get('/users/firstName/:firstName',
+  /*[verificaToken], */
   (req: Request, res: Response) => {
-    let nombre = req.params.nombre;
-    let regex = new RegExp(nombre);
+    let firstName = req.params.firstName;
+    let regex = new RegExp(firstName);
 
-    Clientes.find({
-      nombre: {
+    UserSchema.find({
+      firstName: {
         $regex: regex
       }
     })
       .sort({
-        nombre: 1
+        firstName: 1
       })
       .exec((err, data) => {
         if (err) {
@@ -84,21 +79,19 @@ app.get('/clientes/nombre/:nombre',
 );
 
 app.post(
-  '/clientes',
-  [verificaToken, verificaAdmin_Role],
+  '/users',
+  /*[verificaToken, verificaAdmin_Role],*/
   (req: Request, res: Response) => {
     let body = req.body;
 
-    let clientes = new Clientes({
-      nombre: body.nombre,
-      calle: body.calle,
-      numero: body.numero,
-      colonia: body.colonia,
+    let clientes = new UserSchema({
+      firstName: body.firstName,
+      secondName: body.secondName,
+      institute: body.institute,
       email: body.email,
-      telefono: body.telefono
     });
 
-    Clientes.create(clientes, (err: MongoError, data: any) => {
+    UserSchema.create(clientes, (err: MongoError, data: any) => {
       if (err) {
         return res.status(400).json({
           ok: false,
@@ -114,60 +107,21 @@ app.post(
   }
 );
 
-// Enviar notificación.
-app.post(
-  '/clientes/notification/:device/:title/:body',
-  [verificaToken, verificaAdmin_Role],
-  (req: Request, res: Response) => {
-    let device = req.params.device;
-    let title = req.params.title;
-    let body = req.params.body;
-
-    let toSend = {
-      to: device,
-      notification: {
-        title: title,
-        body: body
-      }
-    };
-
-    axios.default
-      .post('https://fcm.googleapis.com/fcm/send', toSend, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: GOOGLE_NOTIFICATIONS
-        }
-      })
-      .then(resp => {
-        res.json({
-          ok: true,
-          message: 'Enviado con exito!'
-        });
-      })
-      .catch(err => {
-        res.status(400).json({
-          ok: false,
-          err
-        });
-      });
-  }
-);
-
+// Update User
 app.put(
   '/clientes/:id',
   [verificaToken, verificaAdmin_Role],
   (req: Request, res: Response) => {
     let id = req.params.id;
     let body = _.pick(req.body, [
-      'nombre',
-      'calle',
-      'numero',
-      'colonia',
+      'firstName',
+      'secondName',
+      'institute',
+      'role',
       'email',
-      'telefono'
     ]);
 
-    Clientes.findByIdAndUpdate(
+    UserSchema.findByIdAndUpdate(
       id,
       body,
       { new: true, runValidators: true },
@@ -188,43 +142,14 @@ app.put(
   }
 );
 
-// Editar dispositivos
-
-app.put(
-  '/clientes/devices/:id',
-  [verificaToken],
-  (req: Request, res: Response) => {
-    let id = req.params.id;
-    let body = _.pick(req.body, ['devices']);
-
-    Clientes.findByIdAndUpdate(
-      id /*{ $push: { devices: body.devices } }*/,
-      body,
-      { new: true, runValidators: true },
-      (err, data) => {
-        if (err) {
-          return res.status(400).json({
-            ok: false,
-            err
-          });
-        }
-
-        res.json({
-          ok: true,
-          data: data
-        });
-      }
-    );
-  }
-);
-
+// Dalete User
 app.delete(
-  '/clientes/:id',
+  '/users/:id',
   [verificaToken, verificaAdmin_Role],
   (req: Request, res: Response) => {
     let id = req.params.id;
 
-    Clientes.find({ _id: id })
+    UserSchema.findById({ id })
       .remove()
       .exec((err, data) => {
         if (err) {
@@ -242,9 +167,9 @@ app.delete(
   }
 );
 
-// Activar Cliente
-app.put('/clientes/activate/:telefono', (req, res) => {
-  let telefono = req.params.telefono;
+// Activate User
+app.put('/users/activate/:email', (req, res) => {
+  let email = req.params.email;
   let body = _.pick(req.body, ['password', 'activated']);
 
   if (body.password == [] || body.password == null) {
@@ -258,9 +183,9 @@ app.put('/clientes/activate/:telefono', (req, res) => {
 
   body.password = encypted;
 
-  Clientes.findOneAndUpdate(
+  UserSchema.findOneAndUpdate(
     {
-      telefono,
+      email,
       activated: false
     },
     body,
@@ -276,7 +201,7 @@ app.put('/clientes/activate/:telefono', (req, res) => {
       if (!data) {
         return res.status(400).json({
           ok: false,
-          err: 'El cliente ya esta activo o no existe'
+          err: 'El usuario ya esta activo o no existe'
         });
       }
 

@@ -47,7 +47,7 @@ export default class Server {
   }
 
   private mongoConnect() {
-    mongoose.connect('mongodb://localhost:27017/sautdiaz',
+    mongoose.connect('mongodb://localhost:27017/indian',
       //'mongodb+srv://marco_diaz:pataPON3@cluster0-jm5fl.mongodb.net/sautdiaz?retryWrites=true&w=majority',
       //URL_DB,
       { useNewUrlParser: true, useCreateIndex: true },

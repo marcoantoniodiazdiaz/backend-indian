@@ -1,4 +1,4 @@
-import Clientes, { ICliente } from '../classes/interfaces/cliente.interface';
+import UserSchema, { IUser } from '../classes/interfaces/user.interface';
 import * as _ from 'underscore';
 import bcrypt from 'bcrypt';
 import { app } from './router';
@@ -8,7 +8,7 @@ import { SEED, TOKEN_CAD } from '../global/environment';
 app.post('/login', (req, res) => {
   let body = req.body;
 
-  if (!body.telefono || !body.password) {
+  if (!body.email || !body.password) {
     return res.status(400).json({
       ok: false,
       err: {
@@ -17,7 +17,7 @@ app.post('/login', (req, res) => {
     });
   }
 
-  Clientes.findOne({ telefono: body.telefono }, (err, data) => {
+  UserSchema.findOne({ email: body.email }, (err, data) => {
     if (err) {
       return res.status(500).json({
         ok: false,

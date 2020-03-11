@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import socketIO from 'socket.io';
-import { ICliente } from '../../classes/interfaces/cliente.interface';
+import { IUser } from '../../classes/interfaces/user.interface';
 
 export class ClientesSocketController {
 

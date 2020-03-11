@@ -1,38 +1,28 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface ICliente extends Document {
-  nombre: string;
-  calle: string;
-  numero: string;
-  colonia: string;
-  telefono: string;
+export interface IUser extends Document {
+  firstName: string;
+  secondName: string;
+  password: string;
+  institute: string;
   email: string;
   role: string;
-  password: string;
   activated: string;
-  devices: Object;
 }
 
-const ClienteSchema: Schema = new Schema({
-  nombre: {
+const UserSchema: Schema = new Schema({
+  firstName: {
     type: String,
     required: [true, 'El campo nombre es requerido']
   },
-  calle: {
+  secondName: {
     type: String
   },
-  numero: {
-    type: String
-  },
-  colonia: {
+  institute: {
     type: String
   },
   email: {
     type: String
-  },
-  telefono: {
-    type: String,
-    required: [true, 'El campo telefono es requerido']
   },
   role: {
     type: String,
@@ -46,11 +36,7 @@ const ClienteSchema: Schema = new Schema({
     type: Boolean,
     default: false
   },
-  devices: {
-    type: Array,
-    default: []
-  }
 });
 
 // Export the model and return your IUser interface
-export default mongoose.model<ICliente>('Clientes', ClienteSchema);
+export default mongoose.model<IUser>('Clientes', UserSchema);
