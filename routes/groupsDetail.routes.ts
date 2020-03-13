@@ -2,14 +2,14 @@ import { app } from './router';
 
 import { verificaToken } from '../middlewares/authentication';
 import { Request, Response } from 'express';
-import AssignmentSchema from '../classes/interfaces/assignment.interface';
+import GroupsDetailsSchema from '../classes/interfaces/groupsDetails.interface';
 import { MongoError } from 'mongodb';
 
 import * as _ from 'underscore';
 
-// Todas las asignaciones
-app.get('/assignment', [verificaToken], (req: Request, res: Response) => {
-    AssignmentSchema.find().exec((err, data) => {
+// Todas los detalles de grupo
+app.get('/groupDetail', [verificaToken], (req: Request, res: Response) => {
+    GroupsDetailsSchema.find().exec((err, data) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -24,10 +24,10 @@ app.get('/assignment', [verificaToken], (req: Request, res: Response) => {
     });
 });
 
-// Asignaciones por ID
-app.get('/assignment/:id', [verificaToken], (req: Request, res: Response) => {
+// Detalles de grupo por ID
+app.get('/groupDetail/:id', [verificaToken], (req: Request, res: Response) => {
     let id = req.params.id;
-    AssignmentSchema.findById(id).exec((err, data) => {
+    GroupsDetailsSchema.findById(id).exec((err, data) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -42,10 +42,10 @@ app.get('/assignment/:id', [verificaToken], (req: Request, res: Response) => {
     });
 });
 
-// Asignaciones por grupo
-app.get('/assignment/group/:group', [verificaToken], (req: Request, res: Response) => {
+// Detalle por grupo
+app.get('/groupDetail/group/:group', [verificaToken], (req: Request, res: Response) => {
     let group = req.params.group;
-    AssignmentSchema.find(group).exec((err, data) => {
+    GroupsDetailsSchema.find(group).exec((err, data) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -60,19 +60,17 @@ app.get('/assignment/group/:group', [verificaToken], (req: Request, res: Respons
     })
 });
 
-// Agregar instituto
-app.post('/assignment', [verificaToken], (req: Request, res: Response) => {
+// Agregar detalle de grupo
+app.post('/groupDetail', [verificaToken], (req: Request, res: Response) => {
     let body = req.body;
 
-    let assignment = new AssignmentSchema({
-        publishDate: body.publishDate,
-        expireDate: body.expireDate,
-        points: body.points,
-        description: body.description,
-        group: body.group
+    let groupDetail = new GroupsDetailsSchema({
+        group: body.group,
+        user: body.user,
+        userDateLogin: body.userDateLogin
     });
 
-    AssignmentSchema.create(assignment, (err: MongoError, data: any) => {
+    GroupsDetailsSchema.create(groupDetail, (err: MongoError, data: any) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -87,18 +85,16 @@ app.post('/assignment', [verificaToken], (req: Request, res: Response) => {
     });
 });
 
-// Actualizar instituto
-app.put('/assignment/:id', [verificaToken], (req: Request, res: Response) => {
+// Actualizar detalle de grupo
+app.put('/groupDetail/:id', [verificaToken], (req: Request, res: Response) => {
     let id = req.params.id;
     let body = _.pick(req.body, [
-        'publishDate',
-        'expireDate',
-        'points',
-        'description',
         'group',
+        'user',
+        'userDateLogin',
     ]);
 
-    AssignmentSchema.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, data) => {
+    GroupsDetailsSchema.findByIdAndUpdate(id, body, { new: true, runValidators: true }, (err, data) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
@@ -113,11 +109,11 @@ app.put('/assignment/:id', [verificaToken], (req: Request, res: Response) => {
     });
 });
 
-// Eliminar Instituto
-app.delete('/assignment/:id', [verificaToken], (req: Request, res: Response) => {
+// Eliminar detalle de grupo
+app.delete('/groupDetail/:id', [verificaToken], (req: Request, res: Response) => {
     let id = req.params.id;
 
-    AssignmentSchema.findById({ id }).remove().exec((err, data) => {
+    GroupsDetailsSchema.findById({ id }).remove().exec((err, data) => {
         if (err) {
             return res.status(400).json({
                 ok: false,

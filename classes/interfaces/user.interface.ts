@@ -16,13 +16,16 @@ const UserSchema: Schema = new Schema({
     required: [true, 'El campo nombre es requerido']
   },
   secondName: {
-    type: String
+    type: String,
+    required: [true, 'El campo apellido es requerido']
   },
   institute: {
-    type: String
+    type: String,
+    required: [true, 'El campo instituto es requerido']
   },
   email: {
-    type: String
+    type: String,
+    required: [true, 'El campo email es requerido']
   },
   role: {
     type: String,

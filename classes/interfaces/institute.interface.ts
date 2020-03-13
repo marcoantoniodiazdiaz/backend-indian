@@ -11,7 +11,8 @@ const InstituteSchema: Schema = new Schema({
     required: [true, 'El campo nombre es requerido']
   },
   address: {
-    type: String
+    type: String,
+    required: [true, 'El campo dirección es requerido']
   },
 });
 
