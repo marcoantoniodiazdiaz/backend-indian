@@ -30,7 +30,7 @@ app.post('/login', (req, res) => {
         ok: false,
         err: {
           // message: '(Usuario) o contraseña incorrectos'
-          message: 'Este telefono no corresponde a ningun cliente registrado'
+          message: 'Este email no corresponde a ningun cliente registrado'
         }
       });
     }
@@ -55,7 +55,7 @@ app.post('/login', (req, res) => {
 
     let token = jwt.sign(
       {
-        usuario: data
+        user: data
       },
       SEED,
       { expiresIn: TOKEN_CAD }

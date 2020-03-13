@@ -26,8 +26,9 @@
 - Id `PK int`
 - Group `FK int`
 - User `FK int`
+- UserDateLogin `String`
 
-### Assetment
+### Assignment
 - Id `PK int`
 - ExpireDate `String`
 - PublishDate `String`
